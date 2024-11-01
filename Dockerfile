@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0-noble-chiseled AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-noble-chiseled AS base
 ARG TARGETARCH
 USER app
 WORKDIR /app
@@ -11,7 +11,7 @@ WORKDIR /src
 COPY ["SimpleWebApp.csproj", "./"]
 RUN dotnet restore -a $TARGETARCH "./SimpleWebApp.csproj"
 COPY . .
-RUN dotnet build -a $TARGETARCH "./SimpleWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
+#RUN dotnet build -a $TARGETARCH "./SimpleWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
