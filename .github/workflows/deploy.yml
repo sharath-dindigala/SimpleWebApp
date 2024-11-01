@@ -1,4 +1,4 @@
-name: Build .NET 8 Project
+name: Build and Push Container Image
 
 env:
     REGISTRY: ghcr.io
@@ -16,6 +16,9 @@ jobs:
           packages: write
 
         steps:
+        - name: Checkout Setup QEMU
+          uses: docker/setup-qemu-action@v3.2.0
+
         - name: Setup Docker Buildx
           uses: docker/setup-buildx-action@v3.7.1
           with:

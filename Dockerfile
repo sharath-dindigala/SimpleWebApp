@@ -1,12 +1,24 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+ARG TARGETARCH
+USER app
+WORKDIR /app
+EXPOSE 8080
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+ARG TARGETARCH
 WORKDIR /src
 COPY ["SimpleWebApp.csproj", "./"]
-RUN dotnet restore "SimpleWebApp.csproj"
+RUN dotnet restore -a $TARGETARCH "./SimpleWebApp.csproj"
 COPY . .
-RUN dotnet publish "SimpleWebApp.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet build -a $TARGETARCH "./SimpleWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled AS base
-EXPOSE 8080
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+ARG TARGETARCH
+RUN dotnet publish -a $TARGETARCH "./SimpleWebApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
 WORKDIR /app
-COPY --from=build /app/publish .
+COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "SimpleWebApp.dll"]
